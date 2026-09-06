@@ -1,0 +1,6 @@
+.venv/
+tests/
+.git*
+.vscode
+__pycache__/
+requirements-dev.txt
