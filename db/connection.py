@@ -6,24 +6,7 @@ from typing import Iterator
 
 import pyodbc
 
-"""
-Connection pooling notes (Part C - production readiness):
 
-- No connection string or credentials are hardcoded anywhere in source.
-  Locally, values come from local.settings.json (git-ignored) which maps to
-  os.environ.* when running via `func start`. In Azure, the same variable
-  names are set as Application Settings, and in production should be
-  configured as Key Vault references rather than plain values.
-
-- Unlike Node's `mssql` package, pyodbc has no built-in pool, and a single
-  shared pyodbc connection is NOT safe to use across concurrent threads.
-  The Azure Functions Python host can run multiple invocations concurrently
-  in the same worker process, so this module keeps a small fixed-size pool
-  of connections in a thread-safe queue.Queue and hands one out per request
-  via a `with get_connection() as conn:` context manager, returning it to
-  the pool afterwards - avoiding a fresh TCP+TLS handshake on every call
-  while staying safe under concurrency.
-"""
 
 _POOL_SIZE = int(os.environ.get("SQL_POOL_SIZE", "5"))
 _pool: "queue.Queue[pyodbc.Connection]" = queue.Queue(maxsize=_POOL_SIZE)
